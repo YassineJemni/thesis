@@ -1,0 +1,214 @@
+/* src/components/Dependencies/AutoDependencyGenerator.css */
+
+.btn-auto-dependency {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-auto-dependency:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(56, 239, 125, 0.3);
+}
+
+.btn-auto-dependency:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modal.large {
+  max-width: 800px;
+  max-height: 85vh;
+}
+
+.auto-dependency-info {
+  background: #e8f5e9;
+  border-left: 4px solid #4caf50;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 6px;
+}
+
+.auto-dependency-info p {
+  margin: 0 0 0.5rem 0;
+}
+
+.auto-dependency-info ul {
+  margin: 0.5rem 0 0 1.5rem;
+  padding: 0;
+}
+
+.auto-dependency-info li {
+  margin: 0.25rem 0;
+  color: #2e7d32;
+}
+
+.no-suggestions {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  background: #f5f5f5;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.suggestions-list {
+  max-height: 50vh;
+  overflow-y: auto;
+  margin: 1rem 0;
+  padding-right: 0.5rem;
+}
+
+.suggestions-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.suggestions-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.suggestions-list::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.suggestion-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.suggestion-card:hover {
+  border-color: #4caf50;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15);
+}
+
+.suggestion-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.confidence-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.confidence-high {
+  background: #c8e6c9;
+  color: #2e7d32;
+}
+
+.confidence-medium {
+  background: #fff9c4;
+  color: #f57f17;
+}
+
+.confidence-low {
+  background: #ffccbc;
+  color: #d84315;
+}
+
+.suggestion-flow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.task-box {
+  flex: 1;
+  padding: 1rem;
+  border-radius: 8px;
+  background: #f5f5f5;
+}
+
+.task-box.predecessor {
+  border-left: 4px solid #2196f3;
+}
+
+.task-box.successor {
+  border-left: 4px solid #4caf50;
+}
+
+.task-name {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.task-meta {
+  font-size: 12px;
+  color: #666;
+}
+
+.flow-arrow {
+  font-size: 32px;
+  color: #4caf50;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.suggestion-reason {
+  background: #e3f2fd;
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #1565c0;
+  margin-bottom: 1rem;
+}
+
+.suggestion-reason strong {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.btn-create-single {
+  width: 100%;
+  padding: 10px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-create-single:hover:not(:disabled) {
+  background: #45a049;
+  transform: translateY(-1px);
+}
+
+.btn-create-single:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .suggestion-flow {
+    flex-direction: column;
+  }
+  
+  .flow-arrow {
+    transform: rotate(90deg);
+  }
+  
+  .modal.large {
+    max-width: 95%;
+  }
+}

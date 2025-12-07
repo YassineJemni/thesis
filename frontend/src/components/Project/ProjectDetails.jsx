@@ -1,8 +1,10 @@
-// src/components/Project/ProjectDetails.jsx - WITH DAG VISUALIZATION
+// src/components/Project/ProjectDetails.jsx - WITH DAG VISUALIZATION AND DEPENDENCY MANAGER
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { projectAPI, taskAPI } from '../../services/api';
 import TaskDAG from '../DAG/TaskDAG';
+import DependencyManager from '../Dependencies/DependencyManager';
+import AutoDependencyGenerator from '../Dependencies/AutoDependencyGenerator';
 import './ProjectDetails.css';
 
 function ProjectDetails() {
@@ -10,14 +12,15 @@ function ProjectDetails() {
   const navigate = useNavigate();
   const [project, setProject] = useState(null);
   const [tasks, setTasks] = useState([]);
-  const [allocations, setAllocations] = useState([]); // ADDED: Store allocations
+  const [allocations, setAllocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showNewTask, setShowNewTask] = useState(false);
+  const [dagKey, setDagKey] = useState(0); // Key to force DAG refresh
   const [newTask, setNewTask] = useState({
     name: '',
     description: '',
-    estimated_duration: 240, // FIXED: Changed from 'duration' to 'estimated_duration'
-    priority: 3, // FIXED: Added priority field
+    estimated_duration: 240,
+    priority: 3,
     required_skills: ''
   });
 
@@ -30,7 +33,7 @@ function ProjectDetails() {
       setProject(projectRes.data);
       setTasks(tasksRes.data);
       
-      // ADDED: Fetch schedule/allocations
+      // Fetch schedule/allocations
       try {
         const scheduleRes = await projectAPI.getSchedule(id);
         setAllocations(scheduleRes.data.schedule || []);
@@ -56,12 +59,12 @@ function ProjectDetails() {
       const taskData = {
         name: newTask.name,
         description: newTask.description,
-        estimated_duration: parseInt(newTask.estimated_duration), // FIXED: correct field name
-        priority: parseInt(newTask.priority), // FIXED: include priority
+        estimated_duration: parseInt(newTask.estimated_duration),
+        priority: parseInt(newTask.priority),
         required_skills: newTask.required_skills.split(',').map(s => s.trim()).filter(s => s)
       };
       
-      console.log('Sending task data:', taskData); // Debug log
+      console.log('Sending task data:', taskData);
       
       await taskAPI.create(id, taskData);
       
@@ -75,6 +78,7 @@ function ProjectDetails() {
       });
       setShowNewTask(false);
       fetchProjectData();
+      setDagKey(prev => prev + 1); // Refresh DAG
     } catch (error) {
       console.error('Error creating task:', error);
       alert('Failed to create task: ' + (error.response?.data?.detail || error.message));
@@ -86,6 +90,7 @@ function ProjectDetails() {
       try {
         await taskAPI.delete(taskId);
         fetchProjectData();
+        setDagKey(prev => prev + 1); // Refresh DAG
       } catch (error) {
         console.error('Error deleting task:', error);
         alert('Failed to delete task');
@@ -103,6 +108,12 @@ function ProjectDetails() {
       console.error('Error allocating resources:', error);
       alert('Failed to allocate resources: ' + (error.response?.data?.detail || error.message));
     }
+  };
+
+  const handleDependencyCreated = () => {
+    // Refresh DAG and project data after dependency is created
+    setDagKey(prev => prev + 1);
+    fetchProjectData();
   };
 
   if (loading) {
@@ -153,6 +164,16 @@ function ProjectDetails() {
             <button onClick={() => setShowNewTask(true)} className="btn-primary">
               + New Task
             </button>
+            <AutoDependencyGenerator
+              projectId={id}
+              tasks={tasks}
+              onDependenciesGenerated={handleDependencyCreated}
+            />
+            <DependencyManager 
+              projectId={id}
+              tasks={tasks}
+              onDependencyCreated={handleDependencyCreated}
+            />
             <button onClick={handleAllocateResources} className="btn-allocate">
               🎯 Allocate Resources
             </button>
@@ -163,7 +184,7 @@ function ProjectDetails() {
           <h2>Tasks ({tasks.length})</h2>
           
           {/* DAG Visualization */}
-          {tasks.length > 0 && <TaskDAG projectId={id} />}
+          {tasks.length > 0 && <TaskDAG key={dagKey} projectId={id} />}
           
           {tasks.length === 0 ? (
             <div className="empty-state">
@@ -203,16 +224,16 @@ function ProjectDetails() {
                     </span>
                   </div>
                   
-                  {/* ADDED: Show allocation info */}
+                  {/* Show allocation info */}
                   {allocation && (
-                    <div className="task-allocation">
+                    <div className="task-assignment">
                       <div style={{marginBottom: '0.5rem'}}>
                         <strong>✅ Assigned to: {allocation.resource_name}</strong>
                       </div>
-                      <div style={{fontSize: '12px', color: '#666'}}>
+                      <div style={{fontSize: '12px', color: '#155724'}}>
                         📅 Start: {new Date(allocation.scheduled_start).toLocaleString()}
                       </div>
-                      <div style={{fontSize: '12px', color: '#666'}}>
+                      <div style={{fontSize: '12px', color: '#155724'}}>
                         📅 End: {new Date(allocation.scheduled_end).toLocaleString()}
                       </div>
                     </div>

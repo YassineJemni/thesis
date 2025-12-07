@@ -1,0 +1,104 @@
+/* src/components/Dependencies/DependencyManager.css */
+
+.btn-dependency {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-dependency:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(245, 87, 108, 0.3);
+}
+
+.btn-dependency:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dependency-explanation {
+  background: #e3f2fd;
+  border-left: 4px solid #2196f3;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 6px;
+}
+
+.dependency-explanation p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.dependency-arrow {
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  color: #667eea;
+  margin: 1rem 0;
+  padding: 0.5rem;
+  background: #f5f7fa;
+  border-radius: 8px;
+}
+
+.dependency-preview {
+  background: #f0f9ff;
+  border: 2px solid #3b82f6;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.dependency-preview strong {
+  display: block;
+  margin-bottom: 0.75rem;
+  color: #1e40af;
+}
+
+.preview-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.preview-content .task-name {
+  background: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.preview-content .arrow {
+  font-size: 24px;
+  color: #3b82f6;
+  font-weight: bold;
+}
+
+.error-message {
+  background: #fee;
+  color: #c33;
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 4px solid #c33;
+  font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .preview-content {
+    flex-direction: column;
+  }
+  
+  .preview-content .arrow {
+    transform: rotate(90deg);
+  }
+}
