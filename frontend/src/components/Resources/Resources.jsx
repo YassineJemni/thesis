@@ -1,4 +1,4 @@
-// src/components/Resources/Resources.jsx
+// src/components/Resources/Resources.jsx - FIXED
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { resourceAPI } from '../../services/api';
@@ -10,7 +10,9 @@ function Resources() {
   const [showNewResource, setShowNewResource] = useState(false);
   const [newResource, setNewResource] = useState({
     name: '',
+    type: 'employee', // FIXED: Added type field (required by backend)
     skills: '',
+    cost_per_hour: 0, // FIXED: Added cost_per_hour field
     available: true
   });
   const navigate = useNavigate();
@@ -25,6 +27,11 @@ function Resources() {
       setResources(response.data);
     } catch (error) {
       console.error('Error fetching resources:', error);
+      if (error.response?.status === 401) {
+        // Token expired, redirect to login
+        localStorage.removeItem('token');
+        navigate('/login');
+      }
     } finally {
       setLoading(false);
     }
@@ -34,15 +41,28 @@ function Resources() {
     e.preventDefault();
     try {
       const resourceData = {
-        ...newResource,
-        skills: newResource.skills.split(',').map(s => s.trim()).filter(s => s)
+        name: newResource.name,
+        type: newResource.type, // FIXED: Include type
+        skills: newResource.skills.split(',').map(s => s.trim()).filter(s => s),
+        cost_per_hour: parseFloat(newResource.cost_per_hour) || 0 // FIXED: Include cost
       };
+      
+      console.log('Creating resource:', resourceData); // Debug log
+      
       await resourceAPI.create(resourceData);
-      setNewResource({ name: '', skills: '', available: true });
+      
+      setNewResource({ 
+        name: '', 
+        type: 'employee',
+        skills: '', 
+        cost_per_hour: 0,
+        available: true 
+      });
       setShowNewResource(false);
       fetchResources();
     } catch (error) {
       console.error('Error creating resource:', error);
+      alert('Failed to create resource: ' + (error.response?.data?.detail || error.message));
     }
   };
 
@@ -52,6 +72,7 @@ function Resources() {
       fetchResources();
     } catch (error) {
       console.error('Error updating availability:', error);
+      alert('Failed to update availability');
     }
   };
 
@@ -84,7 +105,7 @@ function Resources() {
 
       <div className="resources-content">
         <div className="resources-header">
-          <h1>Resources</h1>
+          <h1>Resources ({resources.length})</h1>
           <button onClick={() => setShowNewResource(true)} className="btn-primary">
             + New Resource
           </button>
@@ -107,6 +128,16 @@ function Resources() {
                     {resource.available ? '✓ Available' : '✗ Unavailable'}
                   </button>
                 </div>
+                
+                <div className="resource-type">
+                  <strong>Type:</strong> <span style={{textTransform: 'capitalize'}}>{resource.type}</span>
+                </div>
+
+                {resource.cost_per_hour > 0 && (
+                  <div className="resource-cost">
+                    <strong>Cost:</strong> ${resource.cost_per_hour}/hour
+                  </div>
+                )}
                 
                 {resource.skills && resource.skills.length > 0 && (
                   <div className="resource-skills">
@@ -142,15 +173,40 @@ function Resources() {
             </div>
             <form onSubmit={handleCreateResource}>
               <div className="form-group">
-                <label>Resource Name</label>
+                <label>Resource Name *</label>
                 <input
                   type="text"
                   value={newResource.name}
                   onChange={(e) => setNewResource({...newResource, name: e.target.value})}
-                  placeholder="Enter resource name"
+                  placeholder="John Developer"
                   required
                 />
               </div>
+
+              <div className="form-group">
+                <label>Type *</label>
+                <select
+                  value={newResource.type}
+                  onChange={(e) => setNewResource({...newResource, type: e.target.value})}
+                  required
+                >
+                  <option value="employee">Employee</option>
+                  <option value="equipment">Equipment</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Cost per Hour ($)</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={newResource.cost_per_hour}
+                  onChange={(e) => setNewResource({...newResource, cost_per_hour: e.target.value})}
+                  placeholder="50.00"
+                />
+              </div>
+
               <div className="form-group">
                 <label>Skills (comma-separated)</label>
                 <input
@@ -159,17 +215,11 @@ function Resources() {
                   onChange={(e) => setNewResource({...newResource, skills: e.target.value})}
                   placeholder="Python, React, Database, etc."
                 />
+                <small style={{color: '#666', fontSize: '12px'}}>
+                  These skills will be matched to task requirements
+                </small>
               </div>
-              <div className="form-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={newResource.available}
-                    onChange={(e) => setNewResource({...newResource, available: e.target.checked})}
-                  />
-                  <span>Available</span>
-                </label>
-              </div>
+
               <div className="modal-footer">
                 <button type="button" onClick={() => setShowNewResource(false)} className="btn-secondary">
                   Cancel

@@ -1,0 +1,121 @@
+/* src/components/DAG/TaskDAG.css */
+.dag-container {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  margin: 2rem 0;
+}
+
+.dag-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.dag-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 20px;
+}
+
+.dag-legend {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: #666;
+}
+
+.dag-legend span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dag-canvas {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 600px;
+  background: #fafafa;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.dag-canvas::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dag-canvas::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.dag-canvas::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.dag-canvas::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.dag-info {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+  color: #666;
+  font-size: 14px;
+}
+
+.dag-info p {
+  margin: 0.5rem 0;
+}
+
+.dag-loading,
+.dag-error,
+.dag-empty {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.dag-error {
+  color: #ef4444;
+  background: #fee;
+}
+
+.dag-empty {
+  color: #999;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dag-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .dag-legend {
+    font-size: 11px;
+    gap: 0.5rem;
+  }
+  
+  .dag-canvas {
+    max-height: 400px;
+  }
+}

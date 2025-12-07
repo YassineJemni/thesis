@@ -1,7 +1,8 @@
-// src/components/Project/ProjectDetails.jsx
+// src/components/Project/ProjectDetails.jsx - WITH DAG VISUALIZATION
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { projectAPI, taskAPI } from '../../services/api';
+import TaskDAG from '../DAG/TaskDAG';
 import './ProjectDetails.css';
 
 function ProjectDetails() {
@@ -9,12 +10,14 @@ function ProjectDetails() {
   const navigate = useNavigate();
   const [project, setProject] = useState(null);
   const [tasks, setTasks] = useState([]);
+  const [allocations, setAllocations] = useState([]); // ADDED: Store allocations
   const [loading, setLoading] = useState(true);
   const [showNewTask, setShowNewTask] = useState(false);
   const [newTask, setNewTask] = useState({
     name: '',
     description: '',
-    duration: 1,
+    estimated_duration: 240, // FIXED: Changed from 'duration' to 'estimated_duration'
+    priority: 3, // FIXED: Added priority field
     required_skills: ''
   });
 
@@ -26,6 +29,15 @@ function ProjectDetails() {
       ]);
       setProject(projectRes.data);
       setTasks(tasksRes.data);
+      
+      // ADDED: Fetch schedule/allocations
+      try {
+        const scheduleRes = await projectAPI.getSchedule(id);
+        setAllocations(scheduleRes.data.schedule || []);
+      } catch (err) {
+        console.log('No schedule yet:', err);
+        setAllocations([]);
+      }
     } catch (error) {
       console.error('Error fetching project data:', error);
     } finally {
@@ -42,16 +54,30 @@ function ProjectDetails() {
     e.preventDefault();
     try {
       const taskData = {
-        ...newTask,
-        duration: parseInt(newTask.duration),
+        name: newTask.name,
+        description: newTask.description,
+        estimated_duration: parseInt(newTask.estimated_duration), // FIXED: correct field name
+        priority: parseInt(newTask.priority), // FIXED: include priority
         required_skills: newTask.required_skills.split(',').map(s => s.trim()).filter(s => s)
       };
+      
+      console.log('Sending task data:', taskData); // Debug log
+      
       await taskAPI.create(id, taskData);
-      setNewTask({ name: '', description: '', duration: 1, required_skills: '' });
+      
+      // Reset form
+      setNewTask({ 
+        name: '', 
+        description: '', 
+        estimated_duration: 240,
+        priority: 3,
+        required_skills: '' 
+      });
       setShowNewTask(false);
       fetchProjectData();
     } catch (error) {
       console.error('Error creating task:', error);
+      alert('Failed to create task: ' + (error.response?.data?.detail || error.message));
     }
   };
 
@@ -62,18 +88,20 @@ function ProjectDetails() {
         fetchProjectData();
       } catch (error) {
         console.error('Error deleting task:', error);
+        alert('Failed to delete task');
       }
     }
   };
 
   const handleAllocateResources = async () => {
     try {
-      await projectAPI.allocate(id);
-      alert('Resources allocated successfully!');
-      fetchProjectData();
+      const result = await projectAPI.allocate(id);
+      console.log('Allocation result:', result.data);
+      alert(`✅ Resources allocated successfully!\n\n${result.data.length} task(s) assigned.`);
+      fetchProjectData(); // Refresh to show allocations
     } catch (error) {
       console.error('Error allocating resources:', error);
-      alert('Failed to allocate resources');
+      alert('Failed to allocate resources: ' + (error.response?.data?.detail || error.message));
     }
   };
 
@@ -133,13 +161,21 @@ function ProjectDetails() {
 
         <div className="tasks-section">
           <h2>Tasks ({tasks.length})</h2>
+          
+          {/* DAG Visualization */}
+          {tasks.length > 0 && <TaskDAG projectId={id} />}
+          
           {tasks.length === 0 ? (
             <div className="empty-state">
               <p>No tasks yet. Create your first task to get started!</p>
             </div>
           ) : (
             <div className="tasks-list">
-              {tasks.map((task) => (
+              {tasks.map((task) => {
+                // Find allocation for this task
+                const allocation = allocations.find(a => a.task_id === task.id);
+                
+                return (
                 <div key={task.id} className="task-card">
                   <div className="task-header">
                     <h3>{task.name}</h3>
@@ -153,7 +189,7 @@ function ProjectDetails() {
                   <p className="task-description">{task.description || 'No description'}</p>
                   <div className="task-meta">
                     <span className="task-duration">
-                      ⏱️ {task.duration} {task.duration === 1 ? 'day' : 'days'}
+                      ⏱️ {task.estimated_duration} minutes (Priority: {task.priority})
                     </span>
                     {task.required_skills && task.required_skills.length > 0 && (
                       <span className="task-skills">
@@ -161,13 +197,28 @@ function ProjectDetails() {
                       </span>
                     )}
                   </div>
-                  {task.assigned_resource_id && (
-                    <div className="task-assignment">
-                      ✅ Assigned to Resource #{task.assigned_resource_id}
+                  <div className="task-status">
+                    <span className={`status-badge status-${task.status}`}>
+                      {task.status}
+                    </span>
+                  </div>
+                  
+                  {/* ADDED: Show allocation info */}
+                  {allocation && (
+                    <div className="task-allocation">
+                      <div style={{marginBottom: '0.5rem'}}>
+                        <strong>✅ Assigned to: {allocation.resource_name}</strong>
+                      </div>
+                      <div style={{fontSize: '12px', color: '#666'}}>
+                        📅 Start: {new Date(allocation.scheduled_start).toLocaleString()}
+                      </div>
+                      <div style={{fontSize: '12px', color: '#666'}}>
+                        📅 End: {new Date(allocation.scheduled_end).toLocaleString()}
+                      </div>
                     </div>
                   )}
                 </div>
-              ))}
+              )})}
             </div>
           )}
         </div>
@@ -185,7 +236,7 @@ function ProjectDetails() {
             </div>
             <form onSubmit={handleCreateTask}>
               <div className="form-group">
-                <label>Task Name</label>
+                <label>Task Name *</label>
                 <input
                   type="text"
                   value={newTask.name}
@@ -204,14 +255,31 @@ function ProjectDetails() {
                 />
               </div>
               <div className="form-group">
-                <label>Duration (days)</label>
+                <label>Duration (minutes) *</label>
                 <input
                   type="number"
                   min="1"
-                  value={newTask.duration}
-                  onChange={(e) => setNewTask({...newTask, duration: e.target.value})}
+                  value={newTask.estimated_duration}
+                  onChange={(e) => setNewTask({...newTask, estimated_duration: e.target.value})}
                   required
                 />
+                <small style={{color: '#666', fontSize: '12px'}}>
+                  Example: 60 = 1 hour, 240 = 4 hours, 480 = 1 day
+                </small>
+              </div>
+              <div className="form-group">
+                <label>Priority (1-5) *</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="5"
+                  value={newTask.priority}
+                  onChange={(e) => setNewTask({...newTask, priority: e.target.value})}
+                  required
+                />
+                <small style={{color: '#666', fontSize: '12px'}}>
+                  1 = Low priority, 5 = High priority
+                </small>
               </div>
               <div className="form-group">
                 <label>Required Skills (comma-separated)</label>
