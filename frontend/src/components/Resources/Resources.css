@@ -1,0 +1,137 @@
+/* src/components/Resources/Resources.css */
+.resources-page {
+  min-height: 100vh;
+  background: #f5f7fa;
+}
+
+.resources-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.resources-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.resources-header h1 {
+  font-size: 32px;
+  color: #333;
+  margin: 0;
+}
+
+.resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.resource-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+}
+
+.resource-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.resource-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.resource-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.availability-toggle {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.availability-toggle.available {
+  background: #d4edda;
+  color: #155724;
+}
+
+.availability-toggle.available:hover {
+  background: #c3e6cb;
+}
+
+.availability-toggle.unavailable {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.availability-toggle.unavailable:hover {
+  background: #f5c6cb;
+}
+
+.resource-skills {
+  margin-bottom: 1rem;
+}
+
+.resource-skills strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-size: 14px;
+}
+
+.skills-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.skill-tag {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.resource-footer {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 0.75rem;
+  margin-top: 1rem;
+}
+
+.resource-id {
+  font-size: 12px;
+  color: #999;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+  cursor: pointer;
+}
+
+.checkbox-label span {
+  font-weight: normal;
+}
